@@ -1,7 +1,7 @@
 [package]
-name = "movm"
+name = "emoc-16"
 version = "0.1.0"
-description = "An emulator for a machine of my own design."
+description = "A 16-bit Emulator for a Machine of my Own Creation."
 authors = ["Zekinler <zekinler7@gmail.com>"]
 readme = "README.md"
 license = "MIT"

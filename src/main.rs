@@ -57,7 +57,7 @@ const TEST_SUBROUTINE: [u8; 18] = [
     0x42                        // [17] Return
 ];
 
-
+#[allow(unused_variables)]
 fn main() {
     let mut cpu = Cpu::new();
 
