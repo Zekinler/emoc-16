@@ -15,7 +15,9 @@ Most cannot be targeted by instructions directly, some of these are only used in
 Below is a table of the registers:
 
 "Codepoint" is the number used to target a register in an instruction that takes a register operand, if a register does not have a codepoint, it cannot be targeted.
+
 > The lower-halves of registers can only be targeted when Byte-Mode is enabled by setting the highest bit of the codepoint to 1.
+
 "Width" is how many bits the register holds.
 "Name" is a user-friendly name for the register.
 "Purpose" describes what the register is used for.
