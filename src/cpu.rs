@@ -1269,7 +1269,7 @@ impl Cpu {
         self.register16_write_bits(RegisterName::StatusH, 0x0008, flags.2);
     }
 
-    /// Increment register
+    /// Increment register in-place
 
     fn inst_inc(&mut self, mem: &mut MemoryManager) {
         // This instruction is 2 bytes long, the first byte is the opcode
@@ -1286,7 +1286,7 @@ impl Cpu {
         }
     }
 
-    /// Decrement register
+    /// Decrement register in-place
 
     fn inst_dec(&mut self, mem: &mut MemoryManager) {
         // This instruction is 2 bytes long, the first byte is the opcode
@@ -1549,7 +1549,7 @@ impl Cpu {
         self.register16_write_bits(RegisterName::StatusH, 0x0008, false);
     }
 
-    /// Set bits in a register
+    /// Set bits in a register in-place
     
     fn inst_stb(&mut self, mem: &mut MemoryManager) {
         // This instruction is 3 bytes long, the first byte is the opcode
@@ -1567,7 +1567,7 @@ impl Cpu {
         self.write_register8(reg, self.read_register8(reg) | bitmask);
     }
 
-    /// Clear bits in a register
+    /// Clear bits in a register in-place
     
     fn inst_clb(&mut self, mem: &mut MemoryManager) {
         // This instruction is 3 bytes long, the first byte is the opcode
