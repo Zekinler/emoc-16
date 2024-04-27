@@ -11,9 +11,11 @@ Unfortunately, I do not have the money, equipment, or even know-how to do this o
 
 So off-and-on for years now, I've been making attempts at programming an emulator for a machine that doesn't yet exist, and this is my latest attempt.
 
-## Specs
+## General Specs
 
 The EMOC-16 is a 16-bit machine with 32-bit addressing space.
+
+It has 18 16-bit registers.
 
 ### Registers
 
