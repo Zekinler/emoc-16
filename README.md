@@ -1,12 +1,19 @@
 # EMOC-16
 
+## Introduction
+
 A 16-bit Emulator for a Machine of my Own Creation.
 
 The name can also mean an Emulator for a Machine for *your* own Creations.
 
+I've always wanted to build my own computer, not as in put some off-the-shelf components in a case, but actually design a processor with my own instruction set.
+Unfortunately, I do not have the money, equipment, or even know-how to do this on real silicon. However, what I do have is a personal computer, and the ability to code.
+
+So off-and-on for years now, I've been making attempts at programming an emulator for a machine that doesn't yet exist, and this is my latest attempt.
+
 ## Specs
 
-This is a 16-bit machine with 32-bit addressing space.
+The EMOC-16 is a 16-bit machine with 32-bit addressing space.
 
 ### Registers
 
