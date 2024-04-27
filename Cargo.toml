@@ -1,6 +1,10 @@
 [package]
-name = "vm"
+name = "movm"
 version = "0.1.0"
+description = "An emulator for a machine of my own design."
+authors = ["Zekinler <zekinler7@gmail.com>"]
+readme = "README.md"
+license = "MIT"
 edition = "2021"
 
 [dependencies]
