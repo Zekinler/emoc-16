@@ -4,8 +4,6 @@
 
 A 16-bit Emulator for a Machine of my Own Creation.
 
-The name can also mean an Emulator for a Machine for *your* own Creations.
-
 I've always wanted to build my own computer, not as in put some off-the-shelf components in a case, but actually design a processor with my own instruction set.
 Unfortunately, I do not have the money, equipment, or even know-how to do this on real silicon. However, what I do have is a personal computer, and the ability to code.
 
@@ -49,3 +47,11 @@ Most cannot be targeted by instructions directly, some of these are only used in
 "Name" is a user-friendly name for the register.
 
 "Purpose" describes what the register is used for.
+
+The status flags are as such: `-.-.-.-.-.-.-.- -.-.B.-.O.S.Z.C`
+- `C`: "Carry/Borrow",
+- `Z`: "Zero",
+- `S`: "Sign",
+- `O`: "Overflow",
+- `B`: "Byte Mode" (`0`: instructions use 16-bit values, or `1`: 8-bit values),
+- `-`: unused
