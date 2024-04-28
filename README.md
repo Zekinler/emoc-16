@@ -28,7 +28,6 @@ Most cannot be targeted by instructions directly, some of these are only used in
 | -           | 32    | Memory Address  | Holds the address that will be sent on the address bus to memory                                                                  |
 | -           | 16    | Memory Data     | Holds the data that will be sent on the data bus, or that has been received from the data bus                                     |
 | -           | 32    | Program Counter | Holds the address pointing to the current place in execution                                                                      |
-| -           | 16    | Instruction     | Holds the current instruction, or part of the instruction                                                                         |
 | -           | 32    | Stack Pointer   | Holds the address pointing to the top of the stack                                                                                |
 | -           | 32    | Base Pointer    | Holds the address pointing to the bottom of the current stack frame                                                               |
 | 0x01        | 16    | IndexA          | Provides the high-half of a wide address for **data**-related instructions that take either a thin-address, or a register pointer |
