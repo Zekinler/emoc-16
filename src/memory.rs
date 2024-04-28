@@ -76,6 +76,12 @@ impl MemoryManager {
         self.data.len()
     }
 
+    /// Resets all bytes in memory to zero
+     
+    pub fn reset(&mut self) {
+        self.data.fill(0x00);
+    }
+
     /// Adds a [Device]
     /// 
     /// Will panic if `device`'s range exceeds the size of the memory manager, or if `device`'s range overlaps a different [Device]'s range that doesn't have the same access type
