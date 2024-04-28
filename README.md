@@ -48,10 +48,11 @@ Most cannot be targeted by instructions directly, some of these are only used in
 
 "Purpose" describes what the register is used for.
 
-The status flags are as such, H: `-.-.-.-.-.-.-.-` L: `-.-.B.-.O.S.Z.C`
+The status flags are as such, H: `-.-.-.-.-.-.-.-` L: `-.-.B.I.O.S.Z.C`
 - `C`: "Carry/Borrow",
 - `Z`: "Zero",
 - `S`: "Sign",
 - `O`: "Overflow",
+- `I`: "Interrupt Disable",
 - `B`: "Byte Mode" (`0`: instructions use 16-bit values, or `1`: 8-bit values),
 - `-`: unused
