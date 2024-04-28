@@ -130,13 +130,13 @@ impl MemoryManager {
         else                        { self.data[index] }
     }
 
-    /// Sets `index` of memory to `value`
+    /// Sets `index` of memory to `byte`
     /// 
     /// Won't do anything if `index` is >= memory size
     /// 
     /// Won't do anything if `index` is within the range of a ReadOnly device, unless `ignore_access_type` = true
 
-    pub fn write_byte(&mut self, index: usize, value: u8, ignore_access_type: bool) {
+    pub fn write_byte(&mut self, index: usize, byte: u8, ignore_access_type: bool) {
         if !ignore_access_type {
             if let Some(device) = self.get_device_from_index(index) {
                 if device.access_type == AccessType::ReadOnly {
@@ -146,7 +146,7 @@ impl MemoryManager {
         }
 
         if index < self.data.len() {
-            self.data[index] = value;
+            self.data[index] = byte;
         }
     }
 
