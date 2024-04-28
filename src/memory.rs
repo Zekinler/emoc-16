@@ -1,13 +1,12 @@
 use std::ops::Range;
 
-
 /// A virtual "device" to be added to a [MemoryManager]
 /// 
-/// Is used to control a [Cpu]'s access to a range of memory
+/// Is used to control a [CPU]'s access to a range of memory
 /// 
 /// If there are no [Device]s added to a [MemoryManager], or there are none that cover a certain range, that memory will be treated as ReadWrite
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Device {
     range: Range<usize>,
     pub access_type: AccessType,
