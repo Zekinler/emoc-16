@@ -48,7 +48,7 @@ Most cannot be targeted by instructions directly, some of these are only used in
 
 "Purpose" describes what the register is used for.
 
-The status flags are as such: `-.-.-.-.-.-.-.- -.-.B.-.O.S.Z.C`
+The status flags are as such, H: `-.-.-.-.-.-.-.-` L: `-.-.B.-.O.S.Z.C`
 - `C`: "Carry/Borrow",
 - `Z`: "Zero",
 - `S`: "Sign",
