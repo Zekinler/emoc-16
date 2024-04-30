@@ -115,10 +115,10 @@ impl Memory {
 
     /// Writes `byte` into memory at `index`
     /// 
-    /// Does nothing if `index` >= memory size or memory type is ReadOnly
+    /// Does nothing if memory type is ReadOnly or `index` >= memory size
 
     pub fn write_byte(&self, index: usize, byte: u8) {
-        if index >= self.data.len() || self.memory_type == MemoryType::ReadOnly {
+        if self.memory_type == MemoryType::ReadOnly || index >= self.data.len() {
             return
         }
         
@@ -127,18 +127,30 @@ impl Memory {
 
     /// Writes `bytes` into memory at `index`
     /// 
-    /// Does nothing if the index of a byte >= memory size or memory type is ReadOnly
+    /// Does nothing if memory type is ReadOnly
+    /// 
+    /// A byte won't be written if its index >= memory size
 
     pub fn write_2bytes(&self, index: usize, bytes: [u8; 2]) {
+        if self.memory_type == MemoryType::ReadOnly {
+            return
+        }
+
         self.write_byte(index, bytes[0]);
         self.write_byte(index + 1, bytes[1]);
     }
 
     /// Writes `bytes` into memory at `index`
     /// 
-    /// Does nothing if the index of a byte >= memory size or memory type is ReadOnly
+    /// Does nothing if memory type is ReadOnly
+    /// 
+    /// A byte won't be written if its index >= memory size
 
     pub fn write_4bytes(&self, index: usize, bytes: [u8; 4]) {
+        if self.memory_type == MemoryType::ReadOnly {
+            return
+        }
+
         self.write_byte(index, bytes[0]);
         self.write_byte(index + 1, bytes[1]);
         self.write_byte(index + 2, bytes[2]);
