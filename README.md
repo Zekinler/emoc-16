@@ -37,7 +37,7 @@ The order of these bytes are swapped when they are loaded to the Memory Address 
 
 ### Mapping
 
-The address space that the CPU can access is mapped to multiple devices, one device is the system's RAM and another is the ROM either of a cartridge or ROM built into the system.  
+The address space that the CPU can access is mapped to multiple devices, one device is the system's RAM and another is ROM, either of a cartridge or ROM built into the system.  
 The ROM actually comes in two parts however, one part is always 256 bytes and mapped to the addresses `0x00..0xFF`. This part is called the "ROM Header" because it contains information needed to execute the ROM.
 
 #### ROM Header
