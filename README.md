@@ -27,7 +27,7 @@ Addressing Modes:
 - "Direct" : The address to read from memory is in the operand.
 - "Indirect" : The address to read from memory is at the address that is in the operand.
 - "Indexed(X/Y)" : The address to read from memory is in the Index(X/Y) register + an offset that is in the operand.
-- "Indexed-Indirect(X/Y)" : The address to read from memory is at (the address that is in the Index(X/Y) register + an offset that is in the operand).
+- "Indexed(X/Y)-Indirect" : The address to read from memory is at (the address that is in the Index(X/Y) register + an offset that is in the operand).
 
 All data is stored into memory in little-endian:
 
