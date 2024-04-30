@@ -1,4 +1,4 @@
-/// Structs and enums related to memory 
+/// Memory devices and MemoryManager
 pub mod memory;
 
 /// Central Processing Unit and related structs
