@@ -183,7 +183,7 @@ impl MemoryMapper {
     /// 
     /// Returns [None] otherwise
 
-    pub fn get_memory_at(&self, index: usize) -> Option<(&Memory, usize)> {
+    pub fn get_device_at(&self, index: usize) -> Option<(&Memory, usize)> {
         for device in self.devices.iter() {
             if device.1.contains(&index) {
                 return Some((&device.0, index - device.1.start))
@@ -198,7 +198,7 @@ impl MemoryMapper {
     /// 
     /// Returns [None] otherwise
 
-    pub fn get_mut_memory_at(&self, index: usize) -> Option<(&mut Memory, usize)> {
+    pub fn get_mut_device_at(&self, index: usize) -> Option<(&mut Memory, usize)> {
         for device in self.devices.iter() {
             if device.1.contains(&index) {
                 return Some((&mut device.0, index - device.1.start))
