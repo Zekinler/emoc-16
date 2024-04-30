@@ -45,7 +45,7 @@ The ROM actually comes in two parts however, one part is always 256 bytes and ma
 The first four bytes (addresses: `0x00..0x03`) are the address that Interrupt Requests will call to, as are the four bytes after that (`0x04..0x07`) the address that Non-maskable Interrupts will call to.  
 The next four bytes after that (`0x08..0x0B`) are the address that the Program Counter will start at.
 
-The rest of the space in the ROM Header can be used as the developer sees fit, either for subroutine calls, or for storing data.
+The rest of the space in the ROM Header can be used as the developer sees fit, either for subroutines, or for storing data.
 
 #### RAM
 
