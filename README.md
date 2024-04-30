@@ -33,7 +33,7 @@ All data is stored into memory in little-endian:
 
 For example, take the instruction: `LDR` (LoaD Register) with "Direct" addressing mode, this instruction's first operand is the register to load into, but the second is a short address, let's say `0xE200`.  
 This address would not be in the bytes after the instruction as `0xE2, 0x00`, instead it would appear as `0x00, 0xE2`, with the most-significant byte coming after the least-significant.  
-The order of these bytes are then swapped when they are put on the Memory Address register to read from memory, and, likewise, the data that is read from that address is in little-endian too, and is reversed before being loaded into the register.
+The order of these bytes are swapped when they are loaded to the Memory Address register to read from memory, and, likewise, the data that is read from that address is in little-endian too, and the order is reversed before being loaded into the register.
 
 ### Mapping
 
