@@ -60,7 +60,7 @@ Addresses: `0x0080_0100..0x0080_0100 + ROM Size - 1` are mapped to the rest of t
 The EMOC-16 has 5 general-use 16-bit registers, 5 internal 16-bit registers, 2 internal 32-bit address registers, and 1 internal 8-bit register.
 
 The general-use registers can be used as operands for instructions that work on registers.
-The internal registers are only used by the CPU, they are usually modified or tested by specific instructions, like `JMP` for the Program Counter, `CMP` or `JE` for the Status register, or `SP` for the Page register.
+The internal registers are only used by the CPU, they are usually modified or tested by specific instructions, like `JMP` for the Program Counter, `CMP` or `JE` for the Status register, or `SPA` for the Page register.
 
 Instructions that take registers as arguments will take a "codepoint" to denote which register to select from:
 
