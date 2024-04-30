@@ -1,6 +1,6 @@
 [package]
 name = "emoc-16"
-version = "0.1.0"
+version = "0.0.2"
 description = "A 16-bit Emulator for a Machine of my Own Creation."
 authors = ["Zekinler <zekinler7@gmail.com>"]
 readme = "README.md"
