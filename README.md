@@ -62,36 +62,40 @@ The EMOC-16 has 5 general-use 16-bit registers, 5 internal 16-bit registers, 2 i
 The general-use registers can be used as operands for instructions that work on registers.
 The internal registers are only used by the CPU, they are usually modified or tested by specific instructions, like `JMP` for the Program Counter, `CMP` or `JE` for the Status register, or `SPA` for the Page register.
 
-Instructions that take registers as arguments will take a "codepoint" to denote which register to select from:
+Instructions that take registers as operands will take a "codepoint" to denote which register to select from:
 
-| Codepoint   | Width | Name            | Purpose                                                                                                                           |
-| ----------- | ----- | --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `0x00`      | 16    | Accumulator     | Holds the results of math and logic operations                                                                                    |
-| Internal    | 8     | Status          | Holds arithmetic, logic, and control flags                                                                                        |
-| Internal    | 32    | Memory Address  | Holds the address that will be sent on the address bus to memory                                                                  |
-| Internal    | 16    | Memory Data     | Holds the data that will be sent on the data bus, or that has been received from the data bus                                     |
-| Internal    | 32    | Program Counter | Holds the address pointing to the current place in execution                                                                      |
-| Internal    | 16    | Instruction     | Holds the current instruction being executed                                                                                      |
-| Internal    | 16    | Stack Pointer   | Holds the address pointing to next free space on the stack (The high 2 bytes are always 0x0001)                                   |
-| Internal    | 16    | Frame Pointer   | Holds the address pointing to the bottom of the current stack frame (The high 2 bytes are always 0x0001)                          |
-| Internal    | 16    | Page            | Holds the high 2 bytes of a full address (A "page") for absolute and indexed memory instructions                                  |
-| `0x01`      | 16    | Index X         | Holds an indexing address for relative memory instructions                                                                        |
-| `0x02`      | 16    | Index Y         | Holds an indexing address for relative memory instructions                                                                        |
-| `0x03`      | 16    | R0              | General purpose register 0                                                                                                        |
-| `0x04`      | 16    | R1              | General purpose register 1                                                                                                        |
+| Codepoint | Width | Name            | Purpose                                                                                 |
+| --------- | ----- | --------------- | --------------------------------------------------------------------------------------- |
+| `0x00`    | 16    | Accumulator     | The results of math and logic operations                                                |
+| Internal  | 8     | Status          | Arithmetic, logic, and control flags                                                    |
+| Internal  | 32    | Memory Address  | The address that will be sent on the address bus to memory                              |
+| Internal  | 16    | Memory Data     | The data that will be sent on the data bus, or that has been received from the data bus |
+| Internal  | 32    | Program Counter | The address pointing to the current place in execution                                  |
+| Internal  | 16    | Instruction     | The current instruction being executed                                                  |
+| Internal  | 16    | Stack Pointer   | The address pointing to next free space on the stack                                    |
+| Internal  | 16    | Frame Pointer   | The address pointing to the bottom of the current stack frame                           |
+| Internal  | 16    | Page            | The page for all but immediate addressing mode instructions                             |
+| `0x01`    | 16    | Index X         | An indexing address for indexed(x) and indexed(x)-indirect instructions                 |
+| `0x02`    | 16    | Index Y         | An indexing address for indexed(y) and indexed(y)-indirect instructions                 |
+| `0x03`    | 16    | R0              | General purpose register 0                                                              |
+| `0x04`    | 16    | R1              | General purpose register 1                                                              |
 
 ### Status Flags
 
-The Status register holds certain bitflags either denoting information about the previous instruction or controlling how the CPU works.
+The Status register holds certain bit-flags either denoting information about the previous instruction or controlling how the CPU works.
 
 The Status flags are as such: `-.-.B.I.O.S.Z.C`
 
-- `C`: "Carry/Borrow", whether the result of the last add or subtract instruction produced a carry bit or had to borrow past the most-significant bit
-- `Z`: "Zero", whether the result of the last instruction was zero
-- `S`: "Sign", whether the most-significant bit of the result is `1` (making it a negative number in two's-complement)
-- `O`: "Overflow", whether the result of the last arithmetic instruction overflowed out of its bitwidth
-- `I`: "Interrupt Disable", a control flag; whether the cpu will ignore Interrupt Requests
-- `B`: "Byte Mode", a control flag; whether the cpu will process data on 8-bit values (a value of `1`) or 16-bit values (a value of `0`)
+- `C`: "Carry/Borrow", whether the result of the last add or subtract instruction produced a carry bit or had to borrow past the most-significant bit.
+- `Z`: "Zero", whether the result of the last instruction was zero.
+- `S`: "Sign", whether the most-significant bit of the result is `1` (making it a negative number in two's-complement).
+- `O`: "Overflow", whether the result of the last arithmetic instruction overflowed out of its bitwidth.
+- `I`: "Interrupt Disable", a control flag; whether the cpu will ignore Interrupt Requests.
+- `B`: "Byte Mode", a control flag; whether the cpu will process data on 8-bit values (a value of `1`) or 16-bit values (a value of `0`).
 - `-`: Unused
 
-When Byte Mode is enabled, the low-halves of general-use registers can be pointed to by setting the most-significant bit of the codepoint to `1` (i.e. when Byte Mode is `1`, codepoint: `0b0000_0011` = R0H, and `0b1000_0011` = R0L)
+When Byte Mode is enabled, the low-halves of general-use registers can be pointed to by setting the most-significant bit of the codepoint to `1` (i.e. when Byte Mode is `1`, codepoint: `0b0000_0011` = R0H, and `0b1000_0011` = R0L).
+
+### The Stack
+
+The Stack Pointer and Frame Pointer both start at `0xFFFE` with the stack growing downwards, and the page of these pointers are always `0x0002`.
