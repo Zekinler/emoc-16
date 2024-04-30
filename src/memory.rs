@@ -1,72 +1,33 @@
 use std::ops::Range;
 
-/// A virtual "device" to be added to a [MemoryManager]
-/// 
-/// Is used to control a [CPU](super::cpu::CPU)'s access to a range of memory
-/// 
-/// If there are no [Device]s added to a [MemoryManager], or there are none that cover a certain range, that memory will be treated as ReadWrite
+
+/// How memory can be accessed
 
 #[derive(Clone, PartialEq)]
-pub struct Device {
-    range: Range<usize>,
-    pub access_type: AccessType,
-}
-
-impl Device {
-    /// Constructs a new [Device]
-    /// 
-    /// Will panic if `range.start` >= `range.end`
-
-    pub fn new(range: Range<usize>, access_type: AccessType) -> Self {
-        if range.start >= range.end {
-            panic!("range.start ({}) is >= range.end ({})", range.start, range.end);
-        }
-
-        Device {
-            range,
-            access_type,
-        }
-    }
-
-    /// Returns the range that this [Device] covers
-    
-    pub fn range(&self) -> &Range<usize> {
-        &self.range
-    }
-}
-
-
-/// The access type a [Device] has
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum AccessType {
+pub enum MemoryType {
     ReadWrite,
     ReadOnly,
-    WriteOnly,
 }
 
+/// Memory device
 
-/// A manager for the memory space usuable by the machine
-
-#[derive(Clone)]
-pub struct MemoryManager {
+#[derive(Clone, PartialEq)]
+pub struct Memory {
+    memory_type: MemoryType,
     data: Box<[u8]>,
-    devices: Vec<Device>,
 }
 
-impl MemoryManager {
-    /// Constructs a new `MemoryManager`
-    /// 
-    /// Will panic if `size == 0`
+impl Memory {
     
-    pub fn new(size: usize) -> MemoryManager {
-        if size == 0 {
-            panic!("size == 0");
-        }
-        
-        MemoryManager {
-            data: vec![0x00_u8; size].into_boxed_slice(),
-            devices: Vec::new(),
+    /// Constructs a new [Memory]
+
+    pub fn new(memory_type: MemoryType, capacity: usize) -> Self {
+        let mut vec = Vec::with_capacity(capacity);
+        vec.fill(0x00_u8);
+
+        Self {
+            memory_type,
+            data: vec.into_boxed_slice(),
         }
     }
 
@@ -76,159 +37,173 @@ impl MemoryManager {
         self.data.len()
     }
 
+    /// Returns the [MemoryType] of memory
+    
+    pub fn memory_type(&self) -> MemoryType {
+        self.memory_type
+    }
+
     /// Resets all bytes in memory to zero
+    /// 
+    /// Does nothing if memory type isnt ReadWrite
      
     pub fn reset(&mut self) {
-        self.data.fill(0x00);
+        if self.memory_type == MemoryType::ReadWrite {
+            self.data.fill(0x00_u8);
+        }
     }
 
-    /// Adds a [Device]
+    /// Loads a &\[[u8]\] into memory at `index`
     /// 
-    /// Will panic if `device`'s range exceeds the size of the memory manager, or if `device`'s range overlaps a different [Device]'s range that doesn't have the same access type
+    /// Does nothing if memory type isnt ReadOnly
+    /// 
+    /// Panics if `bytes` wont fit into memory at `index`
+     
+    pub fn load(&mut self, index: usize, bytes: &[u8]) {
+        if self.memory_type == MemoryType::ReadOnly {
+            if index + bytes.len() >= self.data.len() {
+                panic!("bytes won't fit into memory at index: index + bytes.len() >= self.size()");
+            }
 
-    pub fn add_device(&mut self, device: Device) {
-        if device.range.start >= self.data.len() {
-            panic!("device's range exceeds the memory manager's size, range.start ({}) >= size ({})", device.range.start, self.data.len());
-        }
-
-        if device.range.end > self.data.len() {
-            panic!("device's range exceeds the memory manager's size, range.end ({}) > size ({})", device.range.end, self.data.len());
-        }
-
-        for other_device in self.devices.iter() {
-            if device.access_type != other_device.access_type && device.range.start < other_device.range.end && other_device.range.start < device.range.end {
-                panic!("device's range ({:?}) overlaps with a different device's range ({:?}) and doesn't have the same access type ({:?}) as it has ({:?})", device.range, other_device.range, device.access_type, other_device.access_type);
+            for (i, byte) in bytes.iter().enumerate() {
+                self.data[index + i] = *byte;
             }
         }
-
-        self.devices.push(device);
     }
 
-    /// Returns [Some]\(&[Device]) if the memory manager has a device with a range that contains `index`
-    /// 
-    /// Returns [None] otherwise
-
-    pub fn get_device_from_index(&self, index: usize) -> Option<&Device> {
-        for device in self.devices.iter() {
-            if device.range.contains(&index) {
-                return Some(device)
-            }
-        }
-        None
+    /// Returns a slice of the bytes in `range` of memory
+     
+    pub fn peek_bytes(&mut self, range: Range<usize>) -> &[u8] {
+        &self.data[range]
     }
-    
+
     /// Returns the [u8] in memory at `index`
     /// 
-    /// Returns 0 if `index` is >= memory size
-    /// 
-    /// Returns 0 if `index` is within the range of a WriteOnly device, unless `ignore_access_type` = true
+    /// Returns 0 if `index` >= memory size
 
-    pub fn read_byte(&self, index: usize, ignore_access_type: bool) -> u8 {
-        if !ignore_access_type {
-            if let Some(device) = self.get_device_from_index(index) {
-                if device.access_type == AccessType::WriteOnly {
-                    return 0;
-                }
-            }
-        }
-        
-        if index >= self.data.len() { 0 }
-        else                        { self.data[index] }
-    }
-
-    /// Sets `index` of memory to `byte`
-    /// 
-    /// Won't do anything if `index` is >= memory size
-    /// 
-    /// Won't do anything if `index` is within the range of a ReadOnly device, unless `ignore_access_type` = true
-
-    pub fn write_byte(&mut self, index: usize, byte: u8, ignore_access_type: bool) {
-        if !ignore_access_type {
-            if let Some(device) = self.get_device_from_index(index) {
-                if device.access_type == AccessType::ReadOnly {
-                    return;
-                }
-            }
-        }
-
-        if index < self.data.len() {
-            self.data[index] = byte;
+    pub fn read_byte(&self, index: usize) -> u8 {
+        if index >= self.data.len() {
+            0x00_u8
+        } else {
+            self.data[index]
         }
     }
 
     /// Returns the \[[u8]; 2\] in memory at `index`
     /// 
-    /// Any index >= memory size or within the range of a ReadOnly device will read 0
+    /// Any byte outside of the memory size will be 0
 
-    pub fn read_byte2(&self, index: usize, ignore_access_type: bool) -> [u8; 2] {
-        let mut bytes = [0x00; 2];
-
-        bytes[0] = self.read_byte(index, ignore_access_type);
-        bytes[1] = self.read_byte(index + 1, ignore_access_type);
-
-        bytes
-    }
-
-    /// Sets `index..index + 2` of memory to `bytes`
-    /// 
-    /// Any byte written to an index >= memory size or to an index within the range of a ReadOnly device will be ignored
-
-    pub fn write_byte2(&mut self, index: usize, bytes: [u8; 2], ignore_access_type: bool) {
-        self.write_byte(index, bytes[0], ignore_access_type);
-        self.write_byte(index + 1, bytes[1], ignore_access_type);
+    pub fn read_2bytes(&self, index: usize) -> [u8; 2] {
+        [
+            self.read_byte(index),
+            self.read_byte(index + 1)
+        ]
     }
 
     /// Returns the \[[u8]; 4\] in memory at `index`
     /// 
-    /// Any index >= memory size or within the range of a ReadOnly device will read 0
+    /// Any byte outside of the memory size will be 0
 
-    pub fn read_byte4(&self, index: usize, ignore_access_type: bool) -> [u8; 4] {
-        let mut bytes = [0x00; 4];
-
-        bytes[0] = self.read_byte(index, ignore_access_type);
-        bytes[1] = self.read_byte(index + 1, ignore_access_type);
-        bytes[2] = self.read_byte(index + 2, ignore_access_type);
-        bytes[3] = self.read_byte(index + 3, ignore_access_type);
-
-        bytes
+    pub fn read_4bytes(&self, index: usize) -> [u8; 4] {
+        [
+            self.read_byte(index),
+            self.read_byte(index + 1),
+            self.read_byte(index + 2),
+            self.read_byte(index + 3)
+        ]
     }
 
-    /// Sets `index..index + 4` of memory to `bytes`
+    /// Writes `byte` into memory at `index`
     /// 
-    /// Any byte written to an index >= memory size or to an index within the range of a ReadOnly device will be ignored
+    /// Does nothing if `index` >= memory size or memory type is ReadOnly
 
-    pub fn write_byte4(&mut self, index: usize, bytes: [u8; 4], ignore_access_type: bool) {
-        self.write_byte(index, bytes[0], ignore_access_type);
-        self.write_byte(index + 1, bytes[1], ignore_access_type);
-        self.write_byte(index + 2, bytes[2], ignore_access_type);
-        self.write_byte(index + 3, bytes[3], ignore_access_type);
-    }
-
-    /// Loads a \&[[u8]\] into memory at `index`
-    /// 
-    /// Will ignore the access type of the range of memory
-    ///
-    /// Any byte written to an index >= memory size will be ignored
-     
-    pub fn load_bytes(&mut self, index: usize, bytes: &[u8]) {
-        for (i, byte) in bytes.iter().enumerate() {
-            self.write_byte(index + i, *byte, true);
+    pub fn write_byte(&self, index: usize, byte: u8) {
+        if index >= self.data.len() || self.memory_type == MemoryType::ReadOnly {
+            return
         }
-    }
-
-    /// Returns a [Box<\[u8\]>] of the bytes in `range` of memory
-    /// 
-    /// Will ignore the access type of the range of memory
-    ///
-    /// Any index >= memory size will read 0
-     
-    pub fn peek_bytes(&mut self, range: Range<usize>) -> Box<[u8]> {
-        let mut bytes = Vec::with_capacity(range.len());
         
-        for index in range {
-            bytes.push(self.read_byte(index, true));
-        }
+        self.data[index] = byte;
+    }
 
-        bytes.into_boxed_slice()
+    /// Writes `bytes` into memory at `index`
+    /// 
+    /// Does nothing if the index of a byte >= memory size or memory type is ReadOnly
+
+    pub fn write_2bytes(&self, index: usize, bytes: [u8; 2]) {
+        self.write_byte(index, bytes[0]);
+        self.write_byte(index + 1, bytes[1]);
+    }
+
+    /// Writes `bytes` into memory at `index`
+    /// 
+    /// Does nothing if the index of a byte >= memory size or memory type is ReadOnly
+
+    pub fn write_4bytes(&self, index: usize, bytes: [u8; 4]) {
+        self.write_byte(index, bytes[0]);
+        self.write_byte(index + 1, bytes[1]);
+        self.write_byte(index + 2, bytes[2]);
+        self.write_byte(index + 3, bytes[3]);
+    }
+}
+
+
+/// A mapper for addressing multiple memory devices
+
+#[derive(Clone)]
+pub struct MemoryMapper {
+    devices: Vec<(Memory, Range<usize>)>,
+}
+
+impl MemoryMapper {
+
+    /// Constructs a new [MemoryMapper]
+    
+    pub fn new() -> MemoryMapper {
+        MemoryMapper {
+            devices: Vec::new()
+        }
+    }
+
+    /// Adds a [Memory] device to the mapper
+
+    pub fn add_device(&mut self, device: Memory) {
+        let range = if self.devices.len() == 0 {
+            0..device.size()
+        } else {
+            let start = self.devices.last().expect("devices should have a device if length != 0").1.end;
+            start..start + device.size()
+        };
+        
+        self.devices.push((device, range));
+    }
+
+    /// Returns [Some]\((&[Memory], usize)) if the memory mapper has a device with a range that contains `index`
+    /// 
+    /// The first member of the return tuple is a reference to the memory, the second is the mapped index
+    /// 
+    /// Returns [None] otherwise
+
+    pub fn get_memory_at(&self, index: usize) -> Option<(&Memory, usize)> {
+        for device in self.devices.iter() {
+            if device.1.contains(&index) {
+                return Some((&device.0, index - device.1.start))
+            }
+        }
+        None
+    }
+
+    /// Returns [Some]\((&mut [Memory], usize)) if the memory mapper has a device with a range that contains `index`
+    /// 
+    /// The first member of the return tuple is a mutable reference to the memory, the second is the mapped index
+    /// 
+    /// Returns [None] otherwise
+
+    pub fn get_mut_memory_at(&self, index: usize) -> Option<(&mut Memory, usize)> {
+        for device in self.devices.iter() {
+            if device.1.contains(&index) {
+                return Some((&mut device.0, index - device.1.start))
+            }
+        }
+        None
     }
 }
