@@ -177,7 +177,7 @@ impl MemoryMapper {
         self.devices.push((device, range));
     }
 
-    /// Returns [Some]\((&[Memory], usize)) if the memory mapper has a device with a range that contains `index`
+    /// Returns [Some]\((&[Memory], usize)) if the memory mapper has a memory device with a range that contains `index`
     /// 
     /// The first member of the return tuple is a reference to the memory, the second is the mapped index
     /// 
@@ -192,7 +192,7 @@ impl MemoryMapper {
         None
     }
 
-    /// Returns [Some]\((&mut [Memory], usize)) if the memory mapper has a device with a range that contains `index`
+    /// Returns [Some]\((&mut [Memory], usize)) if the memory mapper has a memory device with a range that contains `index`
     /// 
     /// The first member of the return tuple is a mutable reference to the memory, the second is the mapped index
     /// 
