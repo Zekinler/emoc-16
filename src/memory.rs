@@ -3,7 +3,7 @@ use std::ops::Range;
 
 /// How memory can be accessed
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum MemoryType {
     ReadWrite,
     ReadOnly,
