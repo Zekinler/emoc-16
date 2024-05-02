@@ -44,13 +44,9 @@ impl Memory {
     }
 
     /// Resets all bytes in memory to zero
-    /// 
-    /// Does nothing if memory type isnt ReadWrite
      
     pub fn reset(&mut self) {
-        if self.memory_type == MemoryType::ReadWrite {
-            self.data.fill(0x00_u8);
-        }
+        self.data.fill(0x00_u8);
     }
 
     /// Loads a &\[[u8]\] into memory at `index`
@@ -69,7 +65,7 @@ impl Memory {
 
     /// Returns a slice of the bytes in `range` of memory
      
-    pub fn peek_bytes(&mut self, range: Range<usize>) -> &[u8] {
+    pub fn peek(&mut self, range: Range<usize>) -> &[u8] {
         &self.data[range]
     }
 
