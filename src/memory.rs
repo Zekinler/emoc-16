@@ -9,17 +9,17 @@ pub enum MemoryType {
     ReadOnly,
 }
 
-/// Memory device
+/// Memory Device
 
 #[derive(Clone, PartialEq)]
-pub struct Memory {
+pub struct MemoryDevice {
     memory_type: MemoryType,
     data: Box<[u8]>,
 }
 
-impl Memory {
+impl MemoryDevice {
     
-    /// Constructs a new [Memory]
+    /// Constructs a new [MemoryDevice]
 
     pub fn new(memory_type: MemoryType, capacity: usize) -> Self {
         let mut vec = Vec::with_capacity(capacity);
@@ -153,9 +153,9 @@ impl Memory {
 
 /// A mapper for addressing multiple memory devices
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct MemoryMapper {
-    devices: Vec<(Memory, Range<usize>)>,
+    devices: Vec<(MemoryDevice, Range<usize>)>,
 }
 
 impl MemoryMapper {
@@ -170,7 +170,7 @@ impl MemoryMapper {
 
     /// Adds a [Memory] device to the mapper
 
-    pub fn add_device(&mut self, device: Memory) {
+    pub fn add_device(&mut self, device: MemoryDevice) {
         let range = if self.devices.len() == 0 {
             0..device.size()
         } else {
@@ -188,7 +188,7 @@ impl MemoryMapper {
     /// 
     /// Returns [None] otherwise
 
-    pub fn get_device_at(&self, index: usize) -> Option<(&Memory, usize)> {
+    pub fn get_device_at(&self, index: usize) -> Option<(&MemoryDevice, usize)> {
         for device in self.devices.iter() {
             if device.1.contains(&index) {
                 return Some((&device.0, index - device.1.start))
@@ -203,7 +203,7 @@ impl MemoryMapper {
     /// 
     /// Returns [None] otherwise
 
-    pub fn get_mut_device_at(&self, index: usize) -> Option<(&mut Memory, usize)> {
+    pub fn get_mut_device_at(&self, index: usize) -> Option<(&mut MemoryDevice, usize)> {
         for device in self.devices.iter() {
             if device.1.contains(&index) {
                 return Some((&mut device.0, index - device.1.start))
