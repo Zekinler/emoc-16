@@ -55,19 +55,15 @@ impl Memory {
 
     /// Loads a &\[[u8]\] into memory at `index`
     /// 
-    /// Does nothing if memory type isnt ReadOnly
-    /// 
     /// Panics if `bytes` wont fit into memory at `index`
      
     pub fn load(&mut self, index: usize, bytes: &[u8]) {
-        if self.memory_type == MemoryType::ReadOnly {
-            if index + bytes.len() >= self.data.len() {
-                panic!("bytes won't fit into memory at index: index + bytes.len() >= self.size()");
-            }
+        if index + bytes.len() >= self.data.len() {
+            panic!("bytes won't fit into memory at index: index + bytes.len() >= self.size()");
+        }
 
-            for (i, byte) in bytes.iter().enumerate() {
-                self.data[index + i] = *byte;
-            }
+        for (i, byte) in bytes.iter().enumerate() {
+            self.data[index + i] = *byte;
         }
     }
 
@@ -183,6 +179,7 @@ impl MemoryMapper {
             0..device.size()
         } else {
             let start = self.devices.last().expect("devices should have a device if length != 0").1.end;
+            
             start..start + device.size()
         };
         
