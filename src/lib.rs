@@ -1,5 +1,2 @@
-/// Memory devices and MemoryManager
+/// Memory
 pub mod memory;
-
-/// Central Processing Unit
-pub mod cpu;

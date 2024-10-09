@@ -1,33 +1,20 @@
 use std::ops::Range;
 
+/// Memory
 
-/// How memory can be accessed
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum MemoryType {
-    ReadWrite,
-    ReadOnly,
-}
-
-/// Memory Device
-
-#[derive(Clone, PartialEq)]
-pub struct MemoryDevice {
-    memory_type: MemoryType,
+pub struct Memory {
+    pub read_only: bool,
     data: Box<[u8]>,
 }
 
-impl MemoryDevice {
+impl Memory {
     
-    /// Constructs a new [MemoryDevice]
+    /// Constructs a new [Memory]
 
-    pub fn new(memory_type: MemoryType, capacity: usize) -> Self {
-        let mut vec = Vec::with_capacity(capacity);
-        vec.fill(0x00_u8);
-
+    pub fn new(read_only: bool, capacity: usize) -> Self {
         Self {
-            memory_type,
-            data: vec.into_boxed_slice(),
+            read_only,
+            data: vec![0x00_u8; capacity].into_boxed_slice(),
         }
     }
 
@@ -37,14 +24,8 @@ impl MemoryDevice {
         self.data.len()
     }
 
-    /// Returns the [MemoryType] of memory
-    
-    pub fn memory_type(&self) -> MemoryType {
-        self.memory_type
-    }
-
     /// Resets all bytes in memory to zero
-     
+    
     pub fn reset(&mut self) {
         self.data.fill(0x00_u8);
     }
@@ -73,7 +54,7 @@ impl MemoryDevice {
     /// 
     /// Returns 0 if `index` >= memory size
 
-    pub fn read_byte(&self, index: usize) -> u8 {
+    pub fn read_8(&self, index: usize) -> u8 {
         if index >= self.data.len() {
             0x00_u8
         } else {
@@ -85,10 +66,10 @@ impl MemoryDevice {
     /// 
     /// Any byte outside of the memory size will be 0
 
-    pub fn read_2bytes(&self, index: usize) -> [u8; 2] {
+    pub fn read_16(&self, index: usize) -> [u8; 2] {
         [
-            self.read_byte(index),
-            self.read_byte(index + 1)
+            self.read_8(index),
+            self.read_8(index + 1)
         ]
     }
 
@@ -96,21 +77,21 @@ impl MemoryDevice {
     /// 
     /// Any byte outside of the memory size will be 0
 
-    pub fn read_4bytes(&self, index: usize) -> [u8; 4] {
+    pub fn read_32(&self, index: usize) -> [u8; 4] {
         [
-            self.read_byte(index),
-            self.read_byte(index + 1),
-            self.read_byte(index + 2),
-            self.read_byte(index + 3)
+            self.read_8(index),
+            self.read_8(index + 1),
+            self.read_8(index + 2),
+            self.read_8(index + 3)
         ]
     }
 
     /// Writes `byte` into memory at `index`
     /// 
-    /// Does nothing if memory type is ReadOnly or `index` >= memory size
+    /// Does nothing if memory is readonly or `index` >= memory size
 
-    pub fn write_byte(&self, index: usize, byte: u8) {
-        if self.memory_type == MemoryType::ReadOnly || index >= self.data.len() {
+    pub fn write_8(&mut self, index: usize, byte: u8) {
+        if index >= self.data.len() || self.read_only {
             return
         }
         
@@ -119,17 +100,17 @@ impl MemoryDevice {
 
     /// Writes `bytes` into memory at `index`
     /// 
-    /// Does nothing if memory type is ReadOnly
+    /// Does nothing if memory is readonly
     /// 
     /// A byte won't be written if its index >= memory size
 
-    pub fn write_2bytes(&self, index: usize, bytes: [u8; 2]) {
-        if self.memory_type == MemoryType::ReadOnly {
+    pub fn write_16(&mut self, index: usize, bytes: [u8; 2]) {
+        if self.read_only {
             return
         }
 
-        self.write_byte(index, bytes[0]);
-        self.write_byte(index + 1, bytes[1]);
+        self.write_8(index, bytes[0]);
+        self.write_8(index + 1, bytes[1]);
     }
 
     /// Writes `bytes` into memory at `index`
@@ -138,77 +119,14 @@ impl MemoryDevice {
     /// 
     /// A byte won't be written if its index >= memory size
 
-    pub fn write_4bytes(&self, index: usize, bytes: [u8; 4]) {
-        if self.memory_type == MemoryType::ReadOnly {
+    pub fn write_32(&mut self, index: usize, bytes: [u8; 4]) {
+        if self.read_only {
             return
         }
 
-        self.write_byte(index, bytes[0]);
-        self.write_byte(index + 1, bytes[1]);
-        self.write_byte(index + 2, bytes[2]);
-        self.write_byte(index + 3, bytes[3]);
-    }
-}
-
-
-/// A mapper for addressing multiple memory devices
-
-#[derive(Clone, PartialEq)]
-pub struct MemoryMapper {
-    devices: Vec<(MemoryDevice, Range<usize>)>,
-}
-
-impl MemoryMapper {
-
-    /// Constructs a new [MemoryMapper]
-    
-    pub fn new() -> MemoryMapper {
-        MemoryMapper {
-            devices: Vec::new()
-        }
-    }
-
-    /// Adds a [Memory] device to the mapper
-
-    pub fn add_device(&mut self, device: MemoryDevice) {
-        let range = if self.devices.len() == 0 {
-            0..device.size()
-        } else {
-            let start = self.devices.last().expect("devices should have a device if length != 0").1.end;
-            
-            start..start + device.size()
-        };
-        
-        self.devices.push((device, range));
-    }
-
-    /// Returns [Some]\((&[Memory], usize)) if the memory mapper has a memory device with a range that contains `index`
-    /// 
-    /// The first member of the return tuple is a reference to the memory, the second is the mapped index
-    /// 
-    /// Returns [None] otherwise
-
-    pub fn get_device_at(&self, index: usize) -> Option<(&MemoryDevice, usize)> {
-        for device in self.devices.iter() {
-            if device.1.contains(&index) {
-                return Some((&device.0, index - device.1.start))
-            }
-        }
-        None
-    }
-
-    /// Returns [Some]\((&mut [Memory], usize)) if the memory mapper has a memory device with a range that contains `index`
-    /// 
-    /// The first member of the return tuple is a mutable reference to the memory, the second is the mapped index
-    /// 
-    /// Returns [None] otherwise
-
-    pub fn get_mut_device_at(&self, index: usize) -> Option<(&mut MemoryDevice, usize)> {
-        for device in self.devices.iter() {
-            if device.1.contains(&index) {
-                return Some((&mut device.0, index - device.1.start))
-            }
-        }
-        None
+        self.write_8(index, bytes[0]);
+        self.write_8(index + 1, bytes[1]);
+        self.write_8(index + 2, bytes[2]);
+        self.write_8(index + 3, bytes[3]);
     }
 }
